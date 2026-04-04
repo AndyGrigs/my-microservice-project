@@ -3,7 +3,7 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "dynamodb_table" {
+variable "table_name" {
   description = "Name of the DynamoDB table for state locking"
   type        = string
 }
@@ -11,4 +11,5 @@ variable "dynamodb_table" {
 variable "environment" {
   description = "Environment name"
   type        = string
+  default     = "dev"
 }

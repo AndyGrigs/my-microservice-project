@@ -1,60 +1,146 @@
 # Lesson 5 — Terraform Modules
 
-This lesson demonstrates structuring Terraform code using reusable modules.
+Проєкт демонструє організацію інфраструктури AWS за допомогою модулів Terraform.
+Інфраструктура включає remote state на S3, мережу VPC та репозиторій контейнерів ECR.
 
-## Structure
+## Структура проєкту
 
 ```
 lesson-5/
-├── main.tf          # Root module — connects all child modules
-├── backend.tf       # S3 + DynamoDB remote state backend
-├── variables.tf     # Root-level input variables
-├── outputs.tf       # Root-level outputs
+│
+├── main.tf          # Головний файл — підключення всіх модулів
+├── backend.tf       # Налаштування бекенду S3 + DynamoDB для стейтів
+├── outputs.tf       # Загальні вихідні дані з усіх модулів
+│
 ├── modules/
-│   ├── s3-backend/  # S3 bucket + DynamoDB for Terraform state
-│   ├── vpc/         # VPC, subnets, Internet Gateway, route tables
-│   └── ecr/         # ECR repository with lifecycle policy
+│   │
+│   ├── s3-backend/          # Модуль для S3 та DynamoDB
+│   │   ├── s3.tf            # Створення S3-бакета
+│   │   ├── dynamodb.tf      # Створення DynamoDB таблиці
+│   │   ├── variables.tf     # Змінні модуля
+│   │   └── outputs.tf       # URL бакета та ім'я DynamoDB
+│   │
+│   ├── vpc/                 # Модуль для VPC
+│   │   ├── vpc.tf           # VPC, підмережі, IGW, NAT Gateway
+│   │   ├── routes.tf        # Route Tables та асоціації
+│   │   ├── variables.tf     # Змінні модуля
+│   │   └── outputs.tf       # ID VPC, підмереж, шлюзів
+│   │
+│   └── ecr/                 # Модуль для ECR
+│       ├── ecr.tf           # Репозиторій, політика доступу, lifecycle
+│       ├── variables.tf     # Змінні модуля
+│       └── outputs.tf       # URL репозиторію ECR
+│
 └── README.md
 ```
 
-## Usage
+---
 
-1. Initialize Terraform (first run — use local backend):
+## Команди
+
+### Ініціалізація
 
 ```bash
 terraform init
 ```
 
-2. Create the S3 bucket and DynamoDB table:
+Завантажує провайдери та ініціалізує модулі. Виконується один раз перед першим запуском.
+
+### Перевірка плану
 
 ```bash
-terraform apply -target=module.s3_backend
+terraform plan
 ```
 
-3. Uncomment `backend.tf`, update bucket/table names, then migrate state:
+Показує які ресурси будуть створені, змінені або видалені — без реального застосування.
 
-```bash
-terraform init -migrate-state
-```
-
-4. Apply the rest of the infrastructure:
+### Застосування
 
 ```bash
 terraform apply
 ```
 
-## Required Variables
+Створює або оновлює інфраструктуру відповідно до конфігурації.
 
-| Variable | Description |
+### Видалення
+
+```bash
+terraform destroy
+```
+
+Видаляє всі ресурси, створені Terraform.
+
+---
+
+## Порядок першого деплою
+
+> S3-бакет має бути створений **до** активації `backend.tf`.
+
+**Крок 1** — закоментуй вміст `backend.tf`, ініціалізуй з локальним стейтом:
+
+```bash
+terraform init
+terraform apply -target=module.s3_backend
+```
+
+**Крок 2** — розкоментуй `backend.tf`, перенеси стейт в S3:
+
+```bash
+terraform init -migrate-state
+```
+
+**Крок 3** — задеплой решту інфраструктури:
+
+```bash
+terraform apply
+```
+
+---
+
+## Опис модулів
+
+### `s3-backend`
+
+Створює інфраструктуру для зберігання Terraform state.
+
+| Ресурс | Опис |
 |---|---|
-| `backend_bucket_name` | Unique S3 bucket name for Terraform state |
-| `ecr_repository_name` | Name for the ECR repository |
+| `aws_s3_bucket` | Бакет для зберігання стейт-файлів |
+| `aws_s3_bucket_versioning` | Версіювання — зберігає історію стейтів |
+| `aws_s3_bucket_server_side_encryption_configuration` | Шифрування AES256 |
+| `aws_s3_bucket_public_access_block` | Блокування публічного доступу |
+| `aws_dynamodb_table` | Таблиця для блокування стейту (LockID) |
 
-## Optional Variables
+Вхідні змінні: `bucket_name`, `table_name`
 
-| Variable | Default | Description |
-|---|---|---|
-| `aws_region` | `us-east-1` | AWS region |
-| `environment` | `dev` | Environment name |
-| `vpc_cidr` | `10.0.0.0/16` | VPC CIDR block |
-| `backend_dynamodb_table` | `terraform-state-lock` | DynamoDB table name |
+---
+
+### `vpc`
+
+Створює повну мережеву інфраструктуру.
+
+| Ресурс | Опис |
+|---|---|
+| `aws_vpc` | VPC з підтримкою DNS |
+| `aws_subnet` (public x3) | Публічні підмережі в 3 зонах доступності |
+| `aws_subnet` (private x3) | Приватні підмережі в 3 зонах доступності |
+| `aws_internet_gateway` | IGW для виходу публічних підмереж в інтернет |
+| `aws_eip` + `aws_nat_gateway` | NAT Gateway для виходу приватних підмереж |
+| `aws_route_table` (public) | Маршрут `0.0.0.0/0` → Internet Gateway |
+| `aws_route_table` (private) | Маршрут `0.0.0.0/0` → NAT Gateway |
+
+Вхідні змінні: `vpc_cidr_block`, `public_subnets`, `private_subnets`, `availability_zones`, `vpc_name`
+
+---
+
+### `ecr`
+
+Створює репозиторій Docker-образів у AWS.
+
+| Ресурс | Опис |
+|---|---|
+| `aws_ecr_repository` | Репозиторій з автоматичним скануванням образів (`scan_on_push`) |
+| `aws_ecr_repository_policy` | Політика доступу для поточного AWS акаунта (push/pull) |
+| `aws_ecr_lifecycle_policy` | Зберігає останні 10 образів, старіші видаляються |
+
+Вхідні змінні: `ecr_name`, `scan_on_push`

@@ -3,6 +3,11 @@ output "bucket_name" {
   value       = aws_s3_bucket.terraform_state.bucket
 }
 
+output "bucket_url" {
+  description = "URL of the S3 bucket"
+  value       = "https://${aws_s3_bucket.terraform_state.bucket}.s3.amazonaws.com"
+}
+
 output "bucket_arn" {
   description = "ARN of the S3 bucket"
   value       = aws_s3_bucket.terraform_state.arn
