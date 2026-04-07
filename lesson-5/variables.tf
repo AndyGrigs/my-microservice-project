@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 variable "environment" {
@@ -14,12 +14,13 @@ variable "environment" {
 variable "backend_bucket_name" {
   description = "Name of the S3 bucket for Terraform state"
   type        = string
+  default     = "andygrigs-terraform-state"
 }
 
 variable "backend_dynamodb_table" {
   description = "Name of the DynamoDB table for state locking"
   type        = string
-  default     = "terraform-state-lock"
+  default     = "terraform-locks"
 }
 
 # VPC variables
@@ -44,13 +45,14 @@ variable "private_subnet_cidrs" {
 variable "availability_zones" {
   description = "Availability zones for subnets"
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
 }
 
 # ECR variables
 variable "ecr_repository_name" {
   description = "Name of the ECR repository"
   type        = string
+  default     = "lesson-5-ecr"
 }
 
 variable "ecr_image_tag_mutability" {

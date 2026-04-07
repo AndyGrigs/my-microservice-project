@@ -10,29 +10,29 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-west-2"
+  region = var.aws_region
 }
 
 # Підключаємо модуль S3 та DynamoDB
 module "s3_backend" {
   source      = "./modules/s3-backend"
-  bucket_name = "andygrigs-terraform-state"
-  table_name  = "terraform-locks"
+  bucket_name = var.backend_bucket_name
+  table_name  = var.backend_dynamodb_table
 }
 
 # Підключаємо модуль VPC
 module "vpc" {
   source             = "./modules/vpc"
-  vpc_cidr_block     = "10.0.0.0/16"
-  public_subnets     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  private_subnets    = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
-  availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  vpc_cidr_block     = var.vpc_cidr
+  public_subnets     = var.public_subnet_cidrs
+  private_subnets    = var.private_subnet_cidrs
+  availability_zones = var.availability_zones
   vpc_name           = "lesson-5-vpc"
 }
 
 # Підключаємо модуль ECR
 module "ecr" {
   source       = "./modules/ecr"
-  ecr_name     = "lesson-5-ecr"
+  ecr_name     = var.ecr_repository_name
   scan_on_push = true
 }
