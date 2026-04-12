@@ -26,5 +26,5 @@ module "eks" {
   source             = "./modules/eks"
   cluster_name       = "django-cluster"
   subnet_ids         = module.vpc.public_subnet_ids
-  node_instance_type = "t3.medium"
+  node_instance_type = "t3.micro"
 }
