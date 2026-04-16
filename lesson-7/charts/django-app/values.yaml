@@ -16,4 +16,3 @@ autoscaling:
 config:
   djangoDebug: "1"
   djangoAllowedHosts: "*"
-  djangoSecretKey: "my-secret-key-change-in-production"

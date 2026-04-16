@@ -23,8 +23,9 @@ module "ecr" {
 }
 
 module "eks" {
-  source             = "./modules/eks"
-  cluster_name       = "django-cluster"
-  subnet_ids         = module.vpc.public_subnet_ids
-  node_instance_type = "t3.micro"
+  source              = "./modules/eks"
+  cluster_name        = "django-cluster"
+  subnet_ids          = module.vpc.public_subnet_ids
+  private_subnet_ids  = module.vpc.private_subnet_ids
+  node_instance_type  = "t3.micro"
 }

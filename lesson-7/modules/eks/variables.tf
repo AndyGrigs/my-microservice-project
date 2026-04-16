@@ -14,3 +14,8 @@ variable "node_instance_type" {
   type        = string
   default     = "t3.medium"
 }
+
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs for EKS nodes"
+  type        = list(string)
+}
