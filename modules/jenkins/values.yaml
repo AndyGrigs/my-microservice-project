@@ -1,0 +1,88 @@
+controller:
+  adminPassword: "${jenkins_admin_password}"
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - amazon-ecr:latest
+    - pipeline-aws:latest
+    - credentials-binding:latest
+    - configuration-as-code:latest
+    - job-dsl:latest
+
+  JCasC:
+    defaultConfig: true
+    configScripts:
+      pipeline-job: |
+        jobs:
+          - script: >
+              pipelineJob('django-app-pipeline') {
+                definition {
+                  cpsScm {
+                    scm {
+                      git {
+                        remote {
+                          url('${git_repo_url}')
+                          credentials('github-ssh-key')
+                        }
+                        branch('*/main')
+                      }
+                    }
+                    scriptPath('Jenkinsfile')
+                  }
+                }
+              }
+
+  serviceType: ClusterIP
+
+  # Prometheus metrics endpoint
+  prometheus:
+    enabled: true
+
+persistence:
+  enabled: true
+  size: "8Gi"
+  storageClass: "gp2"
+
+agent:
+  enabled: true
+  namespace: jenkins
+
+  # Kaniko container — builds Docker images without Docker daemon
+  yamlTemplate: |
+    spec:
+      containers:
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:debug
+        command:
+        - /busybox/cat
+        tty: true
+        volumeMounts:
+        - name: ecr-credentials
+          mountPath: /kaniko/.docker
+      - name: git
+        image: alpine/git:latest
+        command:
+        - cat
+        tty: true
+      volumes:
+      - name: ecr-credentials
+        secret:
+          secretName: ecr-credentials
+
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
