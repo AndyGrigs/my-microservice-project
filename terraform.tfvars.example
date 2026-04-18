@@ -1,0 +1,5 @@
+aws_region             = "eu-west-1"
+project_name           = "django-cicd"
+environment            = "production"
+jenkins_admin_password = "CHANGE_ME_STRONG_PASSWORD"
+git_repo_url           = "git@github.com:YOUR_ORG/my-microservice-project.git"
