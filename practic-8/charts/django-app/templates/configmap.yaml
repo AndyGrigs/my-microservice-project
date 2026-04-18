@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-config
-data:
-  DJANGO_DEBUG: {{ .Values.config.djangoDebug | quote }}
-  DJANGO_ALLOWED_HOSTS: {{ .Values.config.djangoAllowedHosts | quote }}
-  DJANGO_SECRET_KEY: {{ .Values.config.djangoSecretKey | quote }}
