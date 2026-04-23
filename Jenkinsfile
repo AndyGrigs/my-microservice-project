@@ -37,6 +37,12 @@ pipeline {
 
   stages {
 
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
     stage('Build & Push via Kaniko') {
       steps {
         container('kaniko') {
