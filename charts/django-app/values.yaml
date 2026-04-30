@@ -1,0 +1,30 @@
+image:
+  repository: ""   # Set to your ECR URL — Jenkins updates tag automatically
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 8000
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+# Non-sensitive env vars only — DJANGO_SECRET_KEY lives in Kubernetes Secret
+env:
+  DEBUG: "False"
+  ALLOWED_HOSTS: "*"
+  DJANGO_SETTINGS_MODULE: "myproject.settings"
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  cpuUtilization: 70

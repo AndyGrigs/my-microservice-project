@@ -1,0 +1,22 @@
+aws_region             = "eu-west-1"
+project_name           = "django-cicd"
+environment            = "production"
+jenkins_admin_password = "CHANGE_ME_STRONG_PASSWORD"
+git_repo_url           = "git@github.com:YOUR_ORG/my-microservice-project.git"
+
+# RDS — звичайна PostgreSQL instance
+rds_use_aurora     = false
+rds_engine         = "postgres"
+rds_engine_version = "15.4"
+rds_family         = "postgres15"
+rds_instance_class = "db.t3.medium"
+rds_db_name        = "appdb"
+rds_db_username    = "dbadmin"
+rds_db_password    = "CHANGE_ME_STRONG_DB_PASSWORD"
+
+# RDS — Aurora PostgreSQL (розкоментуй і замінить значення вище)
+# rds_use_aurora     = true
+# rds_engine         = "aurora-postgresql"
+# rds_engine_version = "15.4"
+# rds_family         = "aurora-postgresql15"
+# rds_instance_class = "db.r6g.large"

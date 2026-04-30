@@ -1,0 +1,105 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml """
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: kaniko
+            image: gcr.io/kaniko-project/executor:debug
+            command:
+            - /busybox/cat
+            tty: true
+            volumeMounts:
+            - name: ecr-credentials
+              mountPath: /kaniko/.docker
+          - name: git
+            image: alpine/git:latest
+            command:
+            - cat
+            tty: true
+          volumes:
+          - name: ecr-credentials
+            secret:
+              secretName: ecr-credentials
+      """
+    }
+  }
+
+  environment {
+    ECR_URL        = "${ECR_REPOSITORY_URL}"
+    IMAGE_NAME     = "django-app"
+    IMAGE_TAG      = "${BUILD_NUMBER}"
+    HELM_REPO      = "git@github.com:${GIT_ORG}/my-microservice-project.git"
+    VALUES_FILE    = "charts/django-app/values.yaml"
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Build & Push via Kaniko') {
+      steps {
+        container('kaniko') {
+          sh """
+            /kaniko/executor \\
+              --context=dir:///workspace/${JOB_NAME}/django-app \\
+              --dockerfile=/workspace/${JOB_NAME}/django-app/Dockerfile \\
+              --destination=${ECR_URL}/${IMAGE_NAME}:${IMAGE_TAG} \\
+              --destination=${ECR_URL}/${IMAGE_NAME}:latest \\
+              --cache=true \\
+              --cache-repo=${ECR_URL}/${IMAGE_NAME}/cache
+          """
+        }
+      }
+    }
+
+    stage('Update Helm values.yaml') {
+      steps {
+        container('git') {
+          withCredentials([sshUserPrivateKey(
+            credentialsId: 'github-ssh-key',
+            keyFileVariable: 'SSH_KEY'
+          )]) {
+            sh """
+              # Configure SSH
+              mkdir -p ~/.ssh
+              cp \$SSH_KEY ~/.ssh/id_rsa
+              chmod 600 ~/.ssh/id_rsa
+              ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+              # Clone repo
+              git clone ${HELM_REPO} /tmp/helm-repo
+              cd /tmp/helm-repo
+
+              # Update image tag in values.yaml
+              sed -i "s|tag:.*|tag: \\"${IMAGE_TAG}\\"|" ${VALUES_FILE}
+
+              # Commit and push
+              git config user.email "jenkins@ci.local"
+              git config user.name "Jenkins CI"
+              git add ${VALUES_FILE}
+              git commit -m "ci: update django-app image tag to ${IMAGE_TAG} [skip ci]"
+              git push origin main
+            """
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "Pipeline succeeded. Image: ${ECR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+      echo "Argo CD will detect the values.yaml change and sync automatically."
+    }
+    failure {
+      echo "Pipeline failed at stage: ${STAGE_NAME}"
+    }
+  }
+}

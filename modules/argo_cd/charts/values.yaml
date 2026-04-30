@@ -1,0 +1,14 @@
+applications:
+  - name: django-app
+    namespace: argocd
+    destination:
+      server: https://kubernetes.default.svc
+      namespace: django-app
+    source:
+      repoURL: ""          # overridden by Terraform set{}
+      targetRevision: main # overridden by Terraform set{}
+      path: charts/django-app
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
