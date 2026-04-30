@@ -1,8 +1,6 @@
 output "endpoint" {
   description = "Connection endpoint for the database (writer endpoint for Aurora)"
-  value = var.use_aurora
-    ? aws_rds_cluster.this[0].endpoint
-    : aws_db_instance.this[0].address
+  value       = var.use_aurora ? aws_rds_cluster.this[0].endpoint : aws_db_instance.this[0].address
 }
 
 output "port" {

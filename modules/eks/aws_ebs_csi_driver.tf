@@ -1,5 +1,3 @@
-data "aws_caller_identity" "current" {}
-
 # ── OIDC Provider for IRSA ────────────────────────────────────────────────────
 
 data "tls_certificate" "eks" {
