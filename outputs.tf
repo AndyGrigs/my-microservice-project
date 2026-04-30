@@ -37,3 +37,18 @@ output "kubeconfig_command" {
   description = "Run this command to configure kubectl"
   value       = "aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}"
 }
+
+output "rds_endpoint" {
+  description = "Database connection endpoint"
+  value       = module.rds.endpoint
+}
+
+output "rds_port" {
+  description = "Database port"
+  value       = module.rds.port
+}
+
+output "rds_db_name" {
+  description = "Initial database name"
+  value       = module.rds.db_name
+}

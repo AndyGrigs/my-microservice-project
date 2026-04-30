@@ -52,6 +52,29 @@ module "jenkins" {
   depends_on = [module.eks]
 }
 
+module "rds" {
+  source = "./modules/rds"
+
+  project_name  = var.project_name
+  environment   = var.environment
+  use_aurora    = var.rds_use_aurora
+
+  engine         = var.rds_engine
+  engine_version = var.rds_engine_version
+  family         = var.rds_family
+  instance_class = var.rds_instance_class
+
+  db_name     = var.rds_db_name
+  db_username = var.rds_db_username
+  db_password = var.rds_db_password
+
+  vpc_id              = module.vpc.vpc_id
+  subnet_ids          = module.vpc.private_subnet_ids
+  allowed_cidr_blocks = ["10.0.0.0/16"]
+
+  depends_on = [module.vpc]
+}
+
 module "argo_cd" {
   source = "./modules/argo_cd"
 
