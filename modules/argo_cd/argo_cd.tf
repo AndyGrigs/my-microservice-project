@@ -19,6 +19,11 @@ resource "helm_release" "argocd_apps" {
   namespace = var.namespace
 
   set {
+    name  = "repositories[0].url"
+    value = var.git_repo_url
+  }
+
+  set {
     name  = "applications[0].source.repoURL"
     value = var.git_repo_url
   }

@@ -1,3 +1,7 @@
+repositories:
+  - name: main-repo
+    url: ""          # overridden by Terraform set{}
+
 applications:
   - name: django-app
     namespace: argocd
