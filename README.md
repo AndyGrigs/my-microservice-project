@@ -84,31 +84,36 @@ AWS
 
 ```
 my-microservice-project/
-├── django-app/              # Django застосунок
+├── Django/                  # Django застосунок
+│   ├── app/                 # Вихідний код (manage.py, mysite/)
 │   ├── Dockerfile           # gunicorn, python:3.11-slim
-│   ├── requirements.txt
-│   └── .dockerignore
+│   ├── Jenkinsfile          # CI pipeline (копія з кореня)
+│   └── docker-compose.yaml  # Локальна розробка з PostgreSQL
 ├── charts/
-│   └── django-app/          # Helm chart для деплою
+│   └── django-app/          # Helm chart для деплою в EKS
 │       ├── Chart.yaml
 │       ├── values.yaml      # Jenkins оновлює image.tag тут
 │       └── templates/
 │           ├── deployment.yaml   # secretKeyRef для DJANGO_SECRET_KEY
 │           ├── service.yaml
 │           ├── configmap.yaml
-│           └── hpa.yaml
+│           ├── hpa.yaml         # Автомасштабування (CPU 70%)
+│           └── secret.yaml      # DJANGO_SECRET_KEY (auto-generated)
 ├── modules/
 │   ├── s3-backend/          # S3 + DynamoDB для Terraform state
 │   ├── vpc/                 # VPC з private/public subnets + NAT
 │   ├── ecr/                 # ECR репозиторій
 │   ├── eks/                 # EKS кластер + EBS CSI driver
-│   ├── jenkins/             # Jenkins через Helm
-│   └── argo_cd/             # Argo CD через Helm + Application chart
+│   ├── rds/                 # PostgreSQL / Aurora RDS
+│   ├── jenkins/             # Jenkins через Helm (Kaniko agent)
+│   └── argo_cd/             # Argo CD + Prometheus + Grafana
+│       └── charts/          # Helm-чарт для реєстрації Application
 ├── Jenkinsfile              # Pipeline: build → push → update git
 ├── main.tf
-├── backend.tf
+├── backend.tf               # S3 remote state
 ├── variables.tf
 ├── outputs.tf
+├── terraform.tfvars.example
 └── .gitignore
 ```
 
