@@ -1,7 +1,7 @@
 module "s3_backend" {
   source = "./modules/s3-backend"
 
-  bucket_name         = "my-terraform-state-bucket"   # змінити на своє, глобально унікальне
+  bucket_name         = "django-cicd-terraform-state-YOUR_NAME"   # те саме ім'я що в backend.tf!
   dynamodb_table_name = "terraform-locks"
   aws_region          = var.aws_region
 }
@@ -78,11 +78,12 @@ module "rds" {
 module "argo_cd" {
   source = "./modules/argo_cd"
 
-  cluster_name     = module.eks.cluster_name
-  cluster_endpoint = module.eks.cluster_endpoint
-  cluster_ca       = module.eks.cluster_certificate_authority_data
-  git_repo_url     = var.git_repo_url
-  app_namespace    = "django-app"
+  cluster_name           = module.eks.cluster_name
+  cluster_endpoint       = module.eks.cluster_endpoint
+  cluster_ca             = module.eks.cluster_certificate_authority_data
+  git_repo_url           = var.git_repo_url
+  app_namespace          = "django-app"
+  grafana_admin_password = var.grafana_admin_password
 
   depends_on = [module.eks]
 }

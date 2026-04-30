@@ -76,3 +76,10 @@ variable "rds_db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "grafana_admin_password" {
+  description = "Grafana admin UI password"
+  type        = string
+  sensitive   = true
+  default     = "admin123"
+}

@@ -52,3 +52,13 @@ output "rds_db_name" {
   description = "Initial database name"
   value       = module.rds.db_name
 }
+
+output "grafana_access_command" {
+  description = "Port-forward to Grafana — admin password set in terraform.tfvars"
+  value       = module.argo_cd.grafana_access_command
+}
+
+output "prometheus_access_command" {
+  description = "Port-forward to Prometheus"
+  value       = module.argo_cd.prometheus_access_command
+}

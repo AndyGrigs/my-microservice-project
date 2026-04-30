@@ -12,3 +12,13 @@ output "argocd_url_command" {
   description = "Command to get the Argo CD LoadBalancer URL"
   value       = "kubectl get svc argocd-server -n ${var.namespace} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
 }
+
+output "grafana_access_command" {
+  description = "Port-forward command for Grafana"
+  value       = "kubectl port-forward svc/prometheus-stack-grafana 3000:80 -n monitoring"
+}
+
+output "prometheus_access_command" {
+  description = "Port-forward command for Prometheus"
+  value       = "kubectl port-forward svc/prometheus-stack-kube-prom-prometheus 9090:9090 -n monitoring"
+}

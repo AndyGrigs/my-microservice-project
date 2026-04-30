@@ -1,10 +1,38 @@
-aws_region             = "eu-west-1"
-project_name           = "django-cicd"
-environment            = "production"
-jenkins_admin_password = "CHANGE_ME_STRONG_PASSWORD"
-git_repo_url           = "git@github.com:YOUR_ORG/my-microservice-project.git"
+# ──────────────────────────────────────────────────────────────────────────────
+# Скопіюй цей файл в terraform.tfvars і заміни всі значення на свої.
+# terraform.tfvars НЕ комітиться в git (він у .gitignore).
+#
+# ВАЖЛИВО: перед першим terraform apply виконай кроки:
+#   1. Закоментуй блок backend "s3" у backend.tf
+#   2. terraform init
+#   3. terraform apply -target=module.s3_backend
+#   4. Розкоментуй backend "s3" у backend.tf, встав свій bucket_name
+#   5. terraform init -migrate-state   (відповісти "yes")
+#   6. terraform apply
+# ──────────────────────────────────────────────────────────────────────────────
 
-# RDS — звичайна PostgreSQL instance
+# Регіон AWS — усі ресурси будуть тут
+aws_region = "eu-west-1"
+
+# Префікс для іменування всіх ресурсів (EKS, VPC, RDS тощо)
+project_name = "django-cicd"
+
+environment = "production"
+
+# ── Credentials ───────────────────────────────────────────────────────────────
+
+# Пароль Jenkins admin (мінімум 8 символів, містити цифри і букви)
+jenkins_admin_password = "CHANGE_ME_STRONG_PASSWORD"
+
+# Пароль Grafana admin (за замовчуванням "admin123" — обов'язково змінити)
+grafana_admin_password = "CHANGE_ME_GRAFANA_PASSWORD"
+
+# SSH URL репозиторію — саме цей URL Argo CD буде відслідковувати
+# Формат: git@github.com:USERNAME/REPO.git
+git_repo_url = "git@github.com:AndyGrigs/my-microservice-project.git"
+
+# ── RDS — звичайна PostgreSQL instance (рекомендовано для старту) ─────────────
+
 rds_use_aurora     = false
 rds_engine         = "postgres"
 rds_engine_version = "15.4"
@@ -14,7 +42,8 @@ rds_db_name        = "appdb"
 rds_db_username    = "dbadmin"
 rds_db_password    = "CHANGE_ME_STRONG_DB_PASSWORD"
 
-# RDS — Aurora PostgreSQL (розкоментуй і замінить значення вище)
+# ── RDS — Aurora PostgreSQL (дорожче, але більш production-ready) ─────────────
+# Розкоментуй і закоментуй секцію вище якщо потрібен Aurora:
 # rds_use_aurora     = true
 # rds_engine         = "aurora-postgresql"
 # rds_engine_version = "15.4"

@@ -41,3 +41,16 @@ variable "app_namespace" {
   type        = string
   default     = "django-app"
 }
+
+variable "prometheus_chart_version" {
+  description = "kube-prometheus-stack Helm chart version"
+  type        = string
+  default     = "58.0.0"
+}
+
+variable "grafana_admin_password" {
+  description = "Grafana admin password"
+  type        = string
+  sensitive   = true
+  default     = "admin123"
+}

@@ -20,8 +20,12 @@ terraform {
     }
   }
 
+  # КРОК 1: закоментуй весь блок backend "s3" нижче і виконай:
+  #   terraform init && terraform apply -target=module.s3_backend
+  # КРОК 2: розкоментуй блок, встав своє унікальне ім'я bucket і виконай:
+  #   terraform init -migrate-state
   backend "s3" {
-    bucket         = "my-terraform-state-bucket"   # змінити на своє
+    bucket         = "django-cicd-terraform-state-YOUR_NAME"   # глобально унікальне!
     key            = "global/terraform.tfstate"
     region         = "eu-west-1"
     dynamodb_table = "terraform-locks"
