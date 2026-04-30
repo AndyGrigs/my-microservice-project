@@ -1,7 +1,7 @@
 module "s3_backend" {
   source = "./modules/s3-backend"
 
-  bucket_name         = "django-cicd-terraform-state-YOUR_NAME"   # те саме ім'я що в backend.tf!
+  bucket_name         = "django-cicd-terraform-state-andy-grigs"   # те саме ім'я що в backend.tf!
   dynamodb_table_name = "terraform-locks"
   aws_region          = var.aws_region
 }
