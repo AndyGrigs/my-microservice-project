@@ -91,6 +91,40 @@ resource "aws_db_parameter_group" "this" {
   }
 }
 
+# ─── Parameter Group (Aurora Instance) ──────────────────────────────────────
+
+resource "aws_db_parameter_group" "aurora_instance" {
+  count = var.use_aurora ? 1 : 0
+
+  name        = "${local.name_prefix}-aurora-ipg"
+  family      = var.family
+  description = "Instance parameter group for ${local.name_prefix} Aurora"
+
+  dynamic "parameter" {
+    for_each = can(regex("postgres", var.family)) ? [1] : []
+    content {
+      name  = "log_statement"
+      value = "all"
+    }
+  }
+
+  dynamic "parameter" {
+    for_each = can(regex("postgres", var.family)) ? [1] : []
+    content {
+      name  = "work_mem"
+      value = "16384"
+    }
+  }
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-aurora-ipg"
+  })
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 # ─── Parameter Group (Aurora Cluster) ────────────────────────────────────────
 
 resource "aws_rds_cluster_parameter_group" "this" {

@@ -35,7 +35,8 @@ resource "aws_rds_cluster_instance" "writer" {
   engine_version = var.engine_version
   instance_class = var.instance_class
 
-  db_subnet_group_name = aws_db_subnet_group.this.name
+  db_subnet_group_name    = aws_db_subnet_group.this.name
+  db_parameter_group_name = aws_db_parameter_group.aurora_instance[0].name
 
   tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-aurora-writer"
