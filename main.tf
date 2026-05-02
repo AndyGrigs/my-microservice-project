@@ -49,6 +49,11 @@ module "jenkins" {
   jenkins_admin_password = var.jenkins_admin_password
   git_repo_url           = var.git_repo_url
 
+  providers = {
+    kubernetes = kubernetes
+    helm       = helm
+  }
+
   depends_on = [module.eks]
 }
 
@@ -84,6 +89,11 @@ module "argo_cd" {
   git_repo_url           = var.git_repo_url
   app_namespace          = "django-app"
   grafana_admin_password = var.grafana_admin_password
+
+  providers = {
+    kubernetes = kubernetes
+    helm       = helm
+  }
 
   depends_on = [module.eks]
 }
