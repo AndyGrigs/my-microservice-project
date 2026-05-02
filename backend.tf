@@ -25,11 +25,11 @@ terraform {
   # КРОК 2: розкоментуй блок, встав своє унікальне ім'я bucket і виконай:
   #   terraform init -migrate-state
   backend "s3" {
-    bucket         = "django-cicd-terraform-state-andy-grigs"   # глобально унікальне!
-    key            = "global/terraform.tfstate"
-    region         = "eu-west-1"
-    dynamodb_table = "terraform-locks"
-    encrypt        = true
+    # bucket         = "django-cicd-terraform-state-andy-grigs"   # глобально унікальне!
+    # key            = "global/terraform.tfstate"
+    # region         = "eu-west-1"
+    # dynamodb_table = "terraform-locks"
+    # encrypt        = true
   }
 }
 
